@@ -42,7 +42,29 @@ Add the `autosizes` class to your images with `srcset` attribute:
 />
 ```
 
-The library will automatically calculate and set the `sizes` attribute based on the image's display width.
+The library will automatically calculate and set the `sizes` attribute based on the image's display width. After calculation, the `autosized` class will be added to the element.
+
+### CSS Styling with autosized class
+
+You can use the `autosized` class to add visual effects or handle states:
+
+```css
+/* Hide images until sizes are calculated */
+img.autosizes:not(.autosized) {
+  opacity: 0;
+}
+
+img.autosized {
+  opacity: 1;
+  transition: opacity 0.3s;
+}
+
+/* Or add a loading state */
+img.autosizes:not(.autosized) {
+  background: #f0f0f0;
+  min-height: 200px;
+}
+```
 
 ### With Picture Element
 
@@ -85,6 +107,7 @@ You can configure the library before importing it:
 // Set configuration before import
 window.autoSizesConfig = {
   className: 'autosizes',      // CSS class to identify elements (default: 'autosizes')
+  autosizedClass: 'autosized', // CSS class added after calculation (default: 'autosized')
   minSize: 40,                 // Minimum size threshold (default: 40)
   init: true,                  // Auto-initialize on import (default: true)
   resizeDebounce: 99,          // Resize debounce delay in ms (default: 99)
@@ -98,6 +121,7 @@ import 'autosizes';
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `className` | string | `'autosizes'` | CSS class to identify elements that need auto-sizing |
+| `autosizedClass` | string | `'autosized'` | CSS class added to element after sizes calculation is complete |
 | `minSize` | number | `40` | Minimum element width. If element is smaller, traverses up DOM tree |
 | `init` | boolean | `true` | Auto-initialize on import |
 | `resizeDebounce` | number | `99` | Debounce delay for resize events (milliseconds) |

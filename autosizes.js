@@ -11,6 +11,8 @@
 const defaults = {
   // CSS class to identify elements
   className: 'autosizes',
+  // CSS class added after sizes calculation
+  autosizedClass: 'autosized',
   // Minimum size threshold - traverse up DOM if element is smaller
   minSize: 40,
   // Enable/disable automatic initialization
@@ -188,6 +190,11 @@ const autoSizer = (() => {
       for (let i = 0; i < sources.length; i++) {
         sources[i].setAttribute('sizes', widthPx);
       }
+    }
+
+    // Add autosized class to mark element as processed
+    if (config.autosizedClass) {
+      elem.classList.add(config.autosizedClass);
     }
 
     // Trigger afterCalculateSizes event

@@ -41,7 +41,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yournextagency/autosizes"
+    "url": "git+https://github.com/yournextagency/autosizes.git"
   },
   "homepage": "https://github.com/yournextagency/autosizes",
   "bugs": {

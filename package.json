@@ -4,6 +4,18 @@
   "description": "Automatic sizes attribute calculator for responsive images. Extracted from lazysizes by Alexander Farkas.",
   "main": "index.js",
   "type": "module",
+  "scripts": {
+    "build": "terser autosizes.js -c -m --comments /^!/ -o autosizes.min.js",
+    "prepublishOnly": "npm run build"
+  },
+  "files": [
+    "autosizes.js",
+    "autosizes.min.js",
+    "index.js",
+    "LICENSE",
+    "README.md",
+    "package.json"
+  ],
   "keywords": [
     "responsive",
     "images",
@@ -29,10 +41,13 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yournextagency/media"
+    "url": "https://github.com/yournextagency/autosizes"
   },
-  "homepage": "https://github.com/yournextagency/media/tree/main/client/src/js/lib/autosizes",
+  "homepage": "https://github.com/yournextagency/autosizes",
   "bugs": {
-    "url": "https://github.com/yournextagency/media/issues"
+    "url": "https://github.com/yournextagency/autosizes/issues"
+  },
+  "devDependencies": {
+    "terser": "^5.44.1"
   }
 }

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AutoSizes Test</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+    }
+
+    .test-section {
+      margin-bottom: 60px;
+      padding: 20px;
+      background: #f5f5f5;
+      border-radius: 8px;
+    }
+
+    .test-section h2 {
+      margin-top: 0;
+      color: #333;
+    }
+
+    .image-container {
+      background: white;
+      padding: 20px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      border: 2px solid #ddd;
+    }
+
+    .info {
+      margin-top: 10px;
+      padding: 10px;
+      background: #e3f2fd;
+      border-radius: 4px;
+      font-size: 14px;
+      font-family: 'Courier New', monospace;
+    }
+
+    .info strong {
+      color: #1976d2;
+    }
+
+    .half-width {
+      width: 50%;
+    }
+
+    .quarter-width {
+      width: 25%;
+    }
+
+    .controls {
+      position: sticky;
+      top: 0;
+      background: white;
+      padding: 15px;
+      border: 2px solid #333;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      z-index: 100;
+    }
+
+    button {
+      padding: 10px 20px;
+      margin-right: 10px;
+      background: #1976d2;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    button:hover {
+      background: #1565c0;
+    }
+
+    .log {
+      background: #263238;
+      color: #aed581;
+      padding: 15px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      max-height: 200px;
+      overflow-y: auto;
+      margin-top: 20px;
+    }
+
+    .log-entry {
+      margin-bottom: 5px;
+    }
+
+    .log-entry.event {
+      color: #81d4fa;
+    }
+  </style>
+</head>
+<body>
+  <h1>AutoSizes Test Page</h1>
+  <p class="subtitle">Testing automatic sizes calculation for responsive images</p>
+
+  <div class="controls">
+    <button onclick="updateAllSizes()">Recalculate All</button>
+    <button onclick="toggleWidth()">Toggle Container Width</button>
+    <button onclick="clearLog()">Clear Log</button>
+  </div>
+
+  <div id="log" class="log"></div>
+
+  <!-- Test 1: Basic image with srcset -->
+  <div class="test-section">
+    <h2>Test 1: Basic Image with srcset</h2>
+    <div class="image-container" id="container1">
+      <img
+        class="autosizes"
+        srcset="https://via.placeholder.com/300x200?text=300w 300w,
+                https://via.placeholder.com/600x400?text=600w 600w,
+                https://via.placeholder.com/900x600?text=900w 900w,
+                https://via.placeholder.com/1200x800?text=1200w 1200w"
+        src="https://via.placeholder.com/600x400?text=fallback"
+        alt="Test image"
+      />
+      <div class="info">
+        <strong>sizes:</strong> <span id="sizes1">Not set</span><br>
+        <strong>Current width:</strong> <span id="width1">-</span>px
+      </div>
+    </div>
+  </div>
+
+  <!-- Test 2: Half width image -->
+  <div class="test-section">
+    <h2>Test 2: Half Width Container</h2>
+    <div class="image-container half-width" id="container2">
+      <img
+        class="autosizes"
+        srcset="https://via.placeholder.com/300x200?text=300w 300w,
+                https://via.placeholder.com/600x400?text=600w 600w,
+                https://via.placeholder.com/900x600?text=900w 900w"
+        src="https://via.placeholder.com/600x400?text=fallback"
+        alt="Half width test"
+      />
+      <div class="info">
+        <strong>sizes:</strong> <span id="sizes2">Not set</span><br>
+        <strong>Current width:</strong> <span id="width2">-</span>px
+      </div>
+    </div>
+  </div>
+
+  <!-- Test 3: Picture element -->
+  <div class="test-section">
+    <h2>Test 3: Picture Element</h2>
+    <div class="image-container" id="container3">
+      <picture>
+        <source
+          class="autosizes"
+          media="(min-width: 768px)"
+          srcset="https://via.placeholder.com/800x600?text=Desktop+800w 800w,
+                  https://via.placeholder.com/1200x900?text=Desktop+1200w 1200w"
+        />
+        <source
+          class="autosizes"
+          srcset="https://via.placeholder.com/400x300?text=Mobile+400w 400w,
+                  https://via.placeholder.com/600x450?text=Mobile+600w 600w"
+        />
+        <img
+          class="autosizes"
+          srcset="https://via.placeholder.com/400x300?text=400w 400w,
+                  https://via.placeholder.com/600x450?text=600w 600w"
+          src="https://via.placeholder.com/400x300?text=fallback"
+          alt="Picture element test"
+        />
+      </picture>
+      <div class="info">
+        <strong>img sizes:</strong> <span id="sizes3img">Not set</span><br>
+        <strong>source sizes:</strong> <span id="sizes3source">Not set</span><br>
+        <strong>Current width:</strong> <span id="width3">-</span>px
+      </div>
+    </div>
+  </div>
+
+  <!-- Test 4: Small container (tests minSize) -->
+  <div class="test-section">
+    <h2>Test 4: Small Container (minSize test)</h2>
+    <p>Container is 25% width (likely below minSize threshold). Should traverse up DOM tree.</p>
+    <div class="image-container quarter-width" id="container4">
+      <img
+        class="autosizes"
+        srcset="https://via.placeholder.com/300x200?text=300w 300w,
+                https://via.placeholder.com/600x400?text=600w 600w"
+        src="https://via.placeholder.com/300x200?text=fallback"
+        alt="Small container test"
+      />
+      <div class="info">
+        <strong>sizes:</strong> <span id="sizes4">Not set</span><br>
+        <strong>Image width:</strong> <span id="width4">-</span>px<br>
+        <strong>Container width:</strong> <span id="containerWidth4">-</span>px
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    // Import autosizes library
+    import autoSizes from './index.js';
+
+    // Make autoSizes available globally for console debugging
+    window.autoSizes = autoSizes;
+
+    // Log to page
+    const logContainer = document.getElementById('log');
+    function log(message, type = 'info') {
+      const entry = document.createElement('div');
+      entry.className = `log-entry ${type}`;
+      entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+      logContainer.appendChild(entry);
+      logContainer.scrollTop = logContainer.scrollHeight;
+      console.log(message);
+    }
+
+    // Clear log
+    window.clearLog = function() {
+      logContainer.innerHTML = '';
+    };
+
+    // Listen to beforeCalculateSizes event
+    document.addEventListener('beforeCalculateSizes', (event) => {
+      const elem = event.target;
+      const width = event.detail.width;
+      log(`beforeCalculateSizes: ${elem.tagName} width=${width}px`, 'event');
+    });
+
+    // Update display info
+    function updateInfo() {
+      // Test 1
+      const img1 = document.querySelector('#container1 img');
+      document.getElementById('sizes1').textContent = img1.getAttribute('sizes') || 'Not set';
+      document.getElementById('width1').textContent = img1.offsetWidth;
+
+      // Test 2
+      const img2 = document.querySelector('#container2 img');
+      document.getElementById('sizes2').textContent = img2.getAttribute('sizes') || 'Not set';
+      document.getElementById('width2').textContent = img2.offsetWidth;
+
+      // Test 3
+      const img3 = document.querySelector('#container3 img');
+      const source3 = document.querySelector('#container3 source');
+      document.getElementById('sizes3img').textContent = img3.getAttribute('sizes') || 'Not set';
+      document.getElementById('sizes3source').textContent = source3.getAttribute('sizes') || 'Not set';
+      document.getElementById('width3').textContent = img3.offsetWidth;
+
+      // Test 4
+      const img4 = document.querySelector('#container4 img');
+      const container4 = document.getElementById('container4');
+      document.getElementById('sizes4').textContent = img4.getAttribute('sizes') || 'Not set';
+      document.getElementById('width4').textContent = img4.offsetWidth;
+      document.getElementById('containerWidth4').textContent = container4.offsetWidth;
+    }
+
+    // Update info on load and resize
+    window.addEventListener('load', () => {
+      log('Page loaded, autosizes initialized');
+      updateInfo();
+    });
+
+    window.addEventListener('resize', () => {
+      setTimeout(updateInfo, 150); // Wait for debounce
+    });
+
+    // Manual update button
+    window.updateAllSizes = function() {
+      log('Manually updating all sizes...');
+      autoSizes.autoSizer.checkElems();
+      setTimeout(updateInfo, 50);
+    };
+
+    // Toggle container width
+    let isFullWidth = true;
+    window.toggleWidth = function() {
+      const container1 = document.getElementById('container1');
+      if (isFullWidth) {
+        container1.style.width = '50%';
+        log('Container width set to 50%');
+      } else {
+        container1.style.width = '100%';
+        log('Container width set to 100%');
+      }
+      isFullWidth = !isFullWidth;
+      setTimeout(updateInfo, 50);
+    };
+
+    // Initial info update after a brief delay
+    setTimeout(updateInfo, 100);
+
+    log('Test page initialized. Resize window to see sizes recalculate.');
+  </script>
+</body>
+</html>

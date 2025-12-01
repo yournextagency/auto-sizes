@@ -1,0 +1,17 @@
+{
+  "name": "autosizes",
+  "version": "1.0.0",
+  "description": "Automatic sizes attribute calculator for responsive images",
+  "main": "index.js",
+  "type": "module",
+  "keywords": [
+    "responsive",
+    "images",
+    "sizes",
+    "srcset",
+    "picture",
+    "responsive-images"
+  ],
+  "author": "YNA Media",
+  "license": "MIT"
+}

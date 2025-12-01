@@ -1,6 +1,6 @@
 /**
  * AutoSizes - Automatic sizes attribute calculator for responsive images
- * Simplified version extracted from lazysizes
+ * Extracted from lazysizes with only sizes calculation functionality
  * @version 1.0.0
  * @license MIT
  */
@@ -9,10 +9,12 @@
  * Default configuration
  */
 const defaults = {
-  // CSS class to identify elements
-  className: 'autosizes',
-  // CSS class added after sizes calculation
-  autosizedClass: 'autosized',
+  // CSS class to identify elements that need sizes calculation
+  targetElementClass: 'autosizes',
+  // CSS class added after sizes calculation is complete
+  processedElementClass: 'autosized',
+  // Attribute name for sizes (supports prefixes like 'data-sizes')
+  sizesAttr: 'sizes',
   // Minimum size threshold - traverse up DOM if element is smaller
   minSize: 40,
   // Enable/disable automatic initialization
@@ -164,10 +166,58 @@ function triggerEvent(elem, name, detail = {}) {
 const regPicture = /^picture$/i;
 
 /**
+ * Check if attribute has a prefix (e.g., 'data-sizes')
+ * @param {string} attr - Attribute name
+ * @returns {boolean}
+ */
+function hasPrefix(attr) {
+  return attr.includes('-') && attr !== 'sizes';
+}
+
+/**
+ * Get base attribute name (e.g., 'data-sizes' -> 'sizes')
+ * @param {string} attr - Attribute name
+ * @returns {string}
+ */
+function getBaseAttr(attr) {
+  if (hasPrefix(attr)) {
+    const parts = attr.split('-');
+    return parts[parts.length - 1];
+  }
+  return attr;
+}
+
+/**
  * AutoSizer module - calculates and sets sizes attribute
  */
 const autoSizer = (() => {
   let elements;
+
+  /**
+   * Check if element has sizes="auto" attribute
+   * @param {Element} elem - Element to check
+   * @returns {boolean}
+   */
+  const hasSizesAuto = (elem) => {
+    const value = elem.getAttribute(config.sizesAttr);
+    return value === 'auto';
+  };
+
+  /**
+   * Set sizes attribute on element
+   * @param {Element} elem - The element
+   * @param {string} sizesValue - The sizes value (e.g., "450px")
+   */
+  const setSizesAttr = (elem, sizesValue) => {
+    // Set the configured attribute
+    elem.setAttribute(config.sizesAttr, sizesValue);
+
+    // If using a prefixed attribute (e.g., data-sizes), also set the base attribute
+    if (hasPrefix(config.sizesAttr)) {
+      const baseAttr = getBaseAttr(config.sizesAttr);
+      elem.setAttribute(baseAttr, sizesValue);
+    }
+  };
 
   /**
    * Set sizes attribute on element and source children
@@ -181,24 +231,28 @@ const autoSizer = (() => {
     elem._autosizesWidth = width;
     const widthPx = `${width}px`;
 
-    // Set sizes attribute on img element
-    elem.setAttribute('sizes', widthPx);
+    // Set sizes attribute on img element (only if it has sizes="auto")
+    if (hasSizesAuto(elem)) {
+      setSizesAttr(elem, widthPx);
+    }
 
-    // If parent is picture element, update source elements too
+    // If parent is picture element, update source elements with sizes="auto"
     if (regPicture.test(parent.nodeName || '')) {
       const sources = parent.getElementsByTagName('source');
       for (let i = 0; i < sources.length; i++) {
-        sources[i].setAttribute('sizes', widthPx);
+        if (hasSizesAuto(sources[i])) {
+          setSizesAttr(sources[i], widthPx);
+        }
       }
     }
 
-    // Add autosized class to mark element as processed
-    if (config.autosizedClass) {
-      elem.classList.add(config.autosizedClass);
+    // Add processed class to mark element as complete
+    if (config.processedElementClass) {
+      elem.classList.add(config.processedElementClass);
     }
 
-    // Trigger afterCalculateSizes event
-    triggerEvent(elem, 'afterCalculateSizes', {
+    // Trigger afterSizesUpdate event
+    triggerEvent(elem, 'afterSizesUpdate', {
       width,
       sizes: widthPx,
     });
@@ -218,8 +272,8 @@ const autoSizer = (() => {
     // Calculate width
     width = getWidth(elem, parent, width);
 
-    // Trigger beforeCalculateSizes event - allows modification of width
-    const event = triggerEvent(elem, 'beforeCalculateSizes', {
+    // Trigger beforeSizesUpdate event - allows modification of width
+    const event = triggerEvent(elem, 'beforeSizesUpdate', {
       width,
       dataAttr: !!dataAttr,
     });
@@ -253,8 +307,8 @@ const autoSizer = (() => {
    * Initialize autoSizer
    */
   const init = () => {
-    // Get all elements with autosizes class
-    elements = document.getElementsByClassName(config.className);
+    // Get all elements with target class
+    elements = document.getElementsByClassName(config.targetElementClass);
 
     // Listen to resize events
     window.addEventListener('resize', debouncedUpdate);
@@ -268,7 +322,7 @@ const autoSizer = (() => {
    */
   return {
     init,
-    checkElems: debouncedUpdate,
+    updateAll: debouncedUpdate,
     updateElem: getSizeElement,
   };
 })();
@@ -291,6 +345,9 @@ const autoSizes = {
   cfg: config,
   autoSizer,
   init,
+  // Convenience methods
+  updateAll: () => autoSizer.updateAll(),
+  updateElem: (elem) => autoSizer.updateElem(elem),
 };
 
 export default autoSizes;

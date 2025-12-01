@@ -47,6 +47,17 @@
       border: 2px solid #ddd;
     }
 
+    /* Demo: fade in after autosized */
+    img.autosizes:not(.autosized) {
+      opacity: 0.3;
+    }
+
+    img.autosized {
+      opacity: 1;
+      transition: opacity 0.3s;
+      border-color: #4caf50;
+    }
+
     .info {
       margin-top: 10px;
       padding: 10px;
@@ -117,7 +128,7 @@
 </head>
 <body>
   <h1>AutoSizes Test Page</h1>
-  <p class="subtitle">Testing automatic sizes calculation for responsive images</p>
+  <p class="subtitle">Testing automatic sizes calculation for responsive images with sizes="auto"</p>
 
   <div class="controls">
     <button onclick="updateAllSizes()">Recalculate All</button>
@@ -127,12 +138,13 @@
 
   <div id="log" class="log"></div>
 
-  <!-- Test 1: Basic image with srcset -->
+  <!-- Test 1: Basic image with sizes="auto" -->
   <div class="test-section">
-    <h2>Test 1: Basic Image with srcset</h2>
+    <h2>Test 1: Basic Image with sizes="auto"</h2>
     <div class="image-container" id="container1">
       <img
         class="autosizes"
+        sizes="auto"
         srcset="https://via.placeholder.com/300x200?text=300w 300w,
                 https://via.placeholder.com/600x400?text=600w 600w,
                 https://via.placeholder.com/900x600?text=900w 900w,
@@ -142,7 +154,8 @@
       />
       <div class="info">
         <strong>sizes:</strong> <span id="sizes1">Not set</span><br>
-        <strong>Current width:</strong> <span id="width1">-</span>px
+        <strong>Current width:</strong> <span id="width1">-</span>px<br>
+        <strong>Has autosized class:</strong> <span id="class1">No</span>
       </div>
     </div>
   </div>
@@ -153,6 +166,7 @@
     <div class="image-container half-width" id="container2">
       <img
         class="autosizes"
+        sizes="auto"
         srcset="https://via.placeholder.com/300x200?text=300w 300w,
                 https://via.placeholder.com/600x400?text=600w 600w,
                 https://via.placeholder.com/900x600?text=900w 900w"
@@ -168,22 +182,23 @@
 
   <!-- Test 3: Picture element -->
   <div class="test-section">
-    <h2>Test 3: Picture Element</h2>
+    <h2>Test 3: Picture Element (all sources with sizes="auto")</h2>
     <div class="image-container" id="container3">
       <picture>
         <source
-          class="autosizes"
+          sizes="auto"
           media="(min-width: 768px)"
           srcset="https://via.placeholder.com/800x600?text=Desktop+800w 800w,
                   https://via.placeholder.com/1200x900?text=Desktop+1200w 1200w"
         />
         <source
-          class="autosizes"
+          sizes="auto"
           srcset="https://via.placeholder.com/400x300?text=Mobile+400w 400w,
                   https://via.placeholder.com/600x450?text=Mobile+600w 600w"
         />
         <img
           class="autosizes"
+          sizes="auto"
           srcset="https://via.placeholder.com/400x300?text=400w 400w,
                   https://via.placeholder.com/600x450?text=600w 600w"
           src="https://via.placeholder.com/400x300?text=fallback"
@@ -192,28 +207,58 @@
       </picture>
       <div class="info">
         <strong>img sizes:</strong> <span id="sizes3img">Not set</span><br>
-        <strong>source sizes:</strong> <span id="sizes3source">Not set</span><br>
+        <strong>source[0] sizes:</strong> <span id="sizes3source1">Not set</span><br>
+        <strong>source[1] sizes:</strong> <span id="sizes3source2">Not set</span><br>
         <strong>Current width:</strong> <span id="width3">-</span>px
       </div>
     </div>
   </div>
 
-  <!-- Test 4: Small container (tests minSize) -->
+  <!-- Test 4: Mixed picture (some auto, some manual) -->
   <div class="test-section">
-    <h2>Test 4: Small Container (minSize test)</h2>
-    <p>Container is 25% width (likely below minSize threshold). Should traverse up DOM tree.</p>
-    <div class="image-container quarter-width" id="container4">
+    <h2>Test 4: Mixed Picture (only img has sizes="auto")</h2>
+    <div class="image-container" id="container4">
+      <picture>
+        <source
+          sizes="100vw"
+          media="(min-width: 768px)"
+          srcset="https://via.placeholder.com/800x600?text=Desktop 800w"
+        />
+        <img
+          class="autosizes"
+          sizes="auto"
+          srcset="https://via.placeholder.com/400x300?text=400w 400w,
+                  https://via.placeholder.com/600x450?text=600w 600w"
+          src="https://via.placeholder.com/400x300?text=fallback"
+          alt="Mixed picture test"
+        />
+      </picture>
+      <div class="info">
+        <strong>img sizes:</strong> <span id="sizes4img">Not set</span><br>
+        <strong>source sizes (manual):</strong> <span id="sizes4source">Not set</span><br>
+        <strong>Note:</strong> Source should keep "100vw", only img should update
+      </div>
+    </div>
+  </div>
+
+  <!-- Test 5: data-sizes attribute -->
+  <div class="test-section">
+    <h2>Test 5: Using data-sizes attribute</h2>
+    <p>Set config.sizesAttr = 'data-sizes' to test prefix support</p>
+    <div class="image-container quarter-width" id="container5">
       <img
         class="autosizes"
+        data-sizes="auto"
         srcset="https://via.placeholder.com/300x200?text=300w 300w,
                 https://via.placeholder.com/600x400?text=600w 600w"
         src="https://via.placeholder.com/300x200?text=fallback"
-        alt="Small container test"
+        alt="data-sizes test"
+        id="dataSizesImg"
       />
       <div class="info">
-        <strong>sizes:</strong> <span id="sizes4">Not set</span><br>
-        <strong>Image width:</strong> <span id="width4">-</span>px<br>
-        <strong>Container width:</strong> <span id="containerWidth4">-</span>px
+        <strong>data-sizes:</strong> <span id="sizes5data">Not set</span><br>
+        <strong>sizes:</strong> <span id="sizes5">Not set</span><br>
+        <strong>Note:</strong> Both should be set when using prefix
       </div>
     </div>
   </div>
@@ -241,45 +286,51 @@
       logContainer.innerHTML = '';
     };
 
-    // Listen to beforeCalculateSizes event
-    document.addEventListener('beforeCalculateSizes', (event) => {
+    // Listen to beforeSizesUpdate event
+    document.addEventListener('beforeSizesUpdate', (event) => {
       const elem = event.target;
       const width = event.detail.width;
-      log(`beforeCalculateSizes: ${elem.tagName} width=${width}px`, 'event');
+      log(`beforeSizesUpdate: ${elem.tagName} width=${width}px`, 'event');
     });
 
-    // Listen to afterCalculateSizes event
-    document.addEventListener('afterCalculateSizes', (event) => {
+    // Listen to afterSizesUpdate event
+    document.addEventListener('afterSizesUpdate', (event) => {
       const elem = event.target;
       const sizes = event.detail.sizes;
-      log(`afterCalculateSizes: ${elem.tagName} sizes="${sizes}"`, 'event');
+      log(`afterSizesUpdate: ${elem.tagName} sizes="${sizes}"`, 'event');
     });
 
     // Update display info
     function updateInfo() {
       // Test 1
       const img1 = document.querySelector('#container1 img');
-      document.getElementById('sizes1').textContent = img1.getAttribute('sizes') || 'Not set';
+      document.getElementById('sizes1').textContent = img1.getAttribute('sizes') || 'auto';
       document.getElementById('width1').textContent = img1.offsetWidth;
+      document.getElementById('class1').textContent = img1.classList.contains('autosized') ? 'Yes' : 'No';
 
       // Test 2
       const img2 = document.querySelector('#container2 img');
-      document.getElementById('sizes2').textContent = img2.getAttribute('sizes') || 'Not set';
+      document.getElementById('sizes2').textContent = img2.getAttribute('sizes') || 'auto';
       document.getElementById('width2').textContent = img2.offsetWidth;
 
       // Test 3
       const img3 = document.querySelector('#container3 img');
-      const source3 = document.querySelector('#container3 source');
-      document.getElementById('sizes3img').textContent = img3.getAttribute('sizes') || 'Not set';
-      document.getElementById('sizes3source').textContent = source3.getAttribute('sizes') || 'Not set';
+      const sources3 = document.querySelectorAll('#container3 source');
+      document.getElementById('sizes3img').textContent = img3.getAttribute('sizes') || 'auto';
+      document.getElementById('sizes3source1').textContent = sources3[0]?.getAttribute('sizes') || 'auto';
+      document.getElementById('sizes3source2').textContent = sources3[1]?.getAttribute('sizes') || 'auto';
       document.getElementById('width3').textContent = img3.offsetWidth;
 
       // Test 4
       const img4 = document.querySelector('#container4 img');
-      const container4 = document.getElementById('container4');
-      document.getElementById('sizes4').textContent = img4.getAttribute('sizes') || 'Not set';
-      document.getElementById('width4').textContent = img4.offsetWidth;
-      document.getElementById('containerWidth4').textContent = container4.offsetWidth;
+      const source4 = document.querySelector('#container4 source');
+      document.getElementById('sizes4img').textContent = img4.getAttribute('sizes') || 'auto';
+      document.getElementById('sizes4source').textContent = source4?.getAttribute('sizes') || 'Not set';
+
+      // Test 5
+      const img5 = document.getElementById('dataSizesImg');
+      document.getElementById('sizes5data').textContent = img5.getAttribute('data-sizes') || 'Not set';
+      document.getElementById('sizes5').textContent = img5.getAttribute('sizes') || 'Not set';
     }
 
     // Update info on load and resize
@@ -295,7 +346,7 @@
     // Manual update button
     window.updateAllSizes = function() {
       log('Manually updating all sizes...');
-      autoSizes.autoSizer.checkElems();
+      autoSizes.updateAll();
       setTimeout(updateInfo, 50);
     };
 
@@ -311,13 +362,17 @@
         log('Container width set to 100%');
       }
       isFullWidth = !isFullWidth;
-      setTimeout(updateInfo, 50);
+      setTimeout(() => {
+        autoSizes.updateAll();
+        setTimeout(updateInfo, 50);
+      }, 50);
     };
 
     // Initial info update after a brief delay
-    setTimeout(updateInfo, 100);
+    setTimeout(updateInfo, 200);
 
     log('Test page initialized. Resize window to see sizes recalculate.');
+    log('Note: Images with sizes="auto" will be updated automatically.');
   </script>
 </body>
 </html>

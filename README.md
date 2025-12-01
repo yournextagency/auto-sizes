@@ -1,242 +1,295 @@
-# AutoSizes
+# autosizes
 
-Automatic `sizes` attribute calculator for responsive images. Simplified and modernized version extracted from [lazysizes](https://github.com/aFarkas/lazysizes).
+Automatic `sizes` attribute calculation for responsive images.
+
+This library automatically calculates and sets the `sizes` attribute for responsive images based on the actual rendered width of the image
+element.
+
+> **Note:** This is not an original library. It is extracted from [lazysizes](https://github.com/aFarkas/lazysizes) with functionality
+> limited to automatic `sizes` calculation only. All lazy loading features have been removed to create a lightweight, focused solution (~2.6KB
+> vs 7.8KB).
 
 ## Features
 
-- ✅ Automatic calculation of `sizes` attribute for responsive images
-- ✅ Support for `<picture>` elements with multiple `<source>` tags
-- ✅ Custom event for modifying calculated width before setting
-- ✅ Automatic re-calculation on window resize (debounced)
-- ✅ Lightweight and modern ES6 code
-- ✅ Zero dependencies
-- ✅ Auto-initialization on import
+- 🎯 Automatic calculation of `sizes` attribute
+- 📦 Tiny size (2.6KB minified)
+- 🚀 High performance with RAF batching
+- 🖼️ Smart `<picture>` element support - only `<img>` needs the class
+- 🔄 Auto-updates on resize
+- 🎨 Customizable via events and CSS classes
+- 📱 Works with any responsive image setup
+- ✨ Adds class to processed elements for easy styling
 
 ## Installation
 
-Place the library in your project and import it:
-
-```javascript
-import 'autosizes';
+```bash
+npm install autosizes
 ```
 
-That's it! The library will automatically initialize and start calculating sizes.
+### Import Methods
+
+```javascript
+// ES modules (auto-executes)
+import 'autosizes';
+
+// CommonJS
+require('autosizes');
+
+// Or with explicit import
+import autoSizes from 'autosizes';
+// Now you can use: autoSizes.init(), autoSizes.updateAll(), etc.
+```
+
+### Browser (script tag)
+
+```html
+<script src="autosizes.min.js"></script>
+<!-- or from CDN when published -->
+```
 
 ## Usage
 
 ### Basic Usage
 
-Add the `autosizes` class to your images with `srcset` attribute:
-
 ```html
 <img
   class="autosizes"
-  srcset="
-    image-300.jpg 300w,
-    image-600.jpg 600w,
-    image-900.jpg 900w,
-    image-1200.jpg 1200w
-  "
-  src="image-600.jpg"
+  sizes="auto"
+  srcset="image-300.jpg 300w, image-600.jpg 600w, image-900.jpg 900w"
+  src="image-300.jpg"
   alt="Responsive image"
 />
+
+<script src="autosizes.js"></script>
 ```
 
-The library will automatically calculate and set the `sizes` attribute based on the image's display width. After calculation, the `autosized` class will be added to the element.
+The library will automatically:
 
-### CSS Styling with autosized class
-
-You can use the `autosized` class to add visual effects or handle states:
-
-```css
-/* Hide images until sizes are calculated */
-img.autosizes:not(.autosized) {
-  opacity: 0;
-}
-
-img.autosized {
-  opacity: 1;
-  transition: opacity 0.3s;
-}
-
-/* Or add a loading state */
-img.autosizes:not(.autosized) {
-  background: #f0f0f0;
-  min-height: 200px;
-}
-```
+1. Find elements with class `autosizes` and `sizes="auto"`
+2. Calculate the correct `sizes` value based on rendered width
+3. Update the `sizes` attribute (e.g., `sizes="450px"`)
+4. Add the `autosized` class to mark it as processed
 
 ### With Picture Element
+
+When using `<picture>` elements, you only need to add the `autosizes` class to the `<img>` element. All `<source>` and `<img>` elements with
+`sizes="auto"` inside the same `<picture>` will be automatically updated:
 
 ```html
 <picture>
   <source
-    class="autosizes"
-    media="(min-width: 768px)"
-    srcset="
-      image-large-600.jpg 600w,
-      image-large-1200.jpg 1200w
-    "
+    sizes="auto"
+    srcset="image-300.jpg 300w, image-600.jpg 600w"
+    media="(max-width: 600px)"
   />
   <source
-    class="autosizes"
-    srcset="
-      image-small-300.jpg 300w,
-      image-small-600.jpg 600w
-    "
+    sizes="auto"
+    srcset="image-600.jpg 600w, image-900.jpg 900w"
+    media="(min-width: 601px)"
   />
   <img
     class="autosizes"
-    srcset="
-      image-300.jpg 300w,
-      image-600.jpg 600w
-    "
-    src="image-300.jpg"
-    alt="Art direction example"
+    sizes="auto"
+    srcset="image-900.jpg 900w, image-1200.jpg 1200w"
+    src="image-900.jpg"
+    alt="Art directed image"
   />
 </picture>
 ```
 
-The library will update `sizes` on both `<source>` and `<img>` elements.
+**Note:** Sources without `sizes="auto"` will not be modified, allowing you to have mixed automatic and manual sizing in the same picture.
+
+### Result After Processing
+
+**Simple image:**
+
+```html
+<!-- Before -->
+<img class="autosizes" sizes="auto" srcset="..." />
+
+<!-- After -->
+<img class="autosizes autosized" sizes="450px" srcset="..." />
+```
+
+**Picture element:**
+
+```html
+<!-- Before -->
+<picture>
+  <source sizes="auto" srcset="..." />
+  <img class="autosizes" sizes="auto" srcset="..." />
+</picture>
+
+<!-- After -->
+<picture>
+  <source sizes="450px" srcset="..." />
+  <img class="autosizes autosized" sizes="450px" srcset="..." />
+</picture>
+```
+
+### Manual API
+
+```javascript
+// Update a specific element
+autoSizes.updateElem(imageElement);
+
+// Update all elements
+autoSizes.updateAll();
+
+// Initialize (if auto-init is disabled)
+autoSizes.init();
+```
 
 ## Configuration
 
-You can configure the library before importing it:
+You can customize the behavior by setting `window.autoSizesConfig` before loading the script:
 
 ```javascript
-// Set configuration before import
 window.autoSizesConfig = {
-  className: 'autosizes',      // CSS class to identify elements (default: 'autosizes')
-  autosizedClass: 'autosized', // CSS class added after calculation (default: 'autosized')
-  minSize: 40,                 // Minimum size threshold (default: 40)
-  init: true,                  // Auto-initialize on import (default: true)
-  resizeDebounce: 99,          // Resize debounce delay in ms (default: 99)
-};
+  // Minimum size threshold (elements smaller than this will look up parent chain)
+  minSize: 40,
 
-import 'autosizes';
+  // Target class for finding elements to process
+  targetElementClass: 'autosizes',
+
+  // Class added after sizes is calculated
+  processedElementClass: 'autosized',
+
+  // Attribute name for sizes
+  sizesAttr: 'sizes',
+
+  // Auto-initialize on load
+  init: true
+};
 ```
 
-### Configuration Options
+### Configuration Options Explained
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `className` | string | `'autosizes'` | CSS class to identify elements that need auto-sizing |
-| `autosizedClass` | string | `'autosized'` | CSS class added to element after sizes calculation is complete |
-| `minSize` | number | `40` | Minimum element width. If element is smaller, traverses up DOM tree |
-| `init` | boolean | `true` | Auto-initialize on import |
-| `resizeDebounce` | number | `99` | Debounce delay for resize events (milliseconds) |
+- **`minSize`** (default: `40`): If element width is less than this value, the library will traverse up the DOM tree to find a parent with
+  sufficient width
+- **`targetElementClass`** (default: `'autosizes'`): CSS class used to identify elements that need automatic sizes calculation
+- **`processedElementClass`** (default: `'autosized'`): CSS class added to elements after sizes has been calculated (useful for styling or
+  debugging)
+- **`sizesAttr`** (default: `'sizes'`): Attribute name to check for `"auto"` value. If it contains a prefix (like `'data-sizes'`), both the
+  prefixed attribute AND the base `sizes` attribute will be set
+- **`init`** (default: `true`): Whether to auto-initialize on page load
+
+### Attribute Prefix Support
+
+If `sizesAttr` contains a prefix (e.g., `'data-sizes'`, `'x-sizes'`), the library will set **both** attributes:
+
+```javascript
+window.autoSizesConfig = {
+  sizesAttr: 'data-sizes'
+};
+```
+
+```html
+<!-- Input -->
+<img class="autosizes" data-sizes="auto" srcset="..." />
+
+<!-- Output - both attributes are set -->
+<img class="autosizes autosized" data-sizes="450px" sizes="450px" srcset="..." />
+```
+
+This is useful for:
+
+- Compatibility with frameworks that use data attributes
+- Preserving the original attribute for debugging
+- Working with tools that expect both attributes
 
 ## Events
 
-### beforeCalculateSizes
+### beforeSizesUpdate
 
-Fired before the `sizes` attribute is set. Allows you to modify the calculated width or prevent the update.
+Fired before the `sizes` attribute is set. Can be used to customize the calculated width:
 
 ```javascript
-document.addEventListener('beforeCalculateSizes', (event) => {
-  console.log('Original width:', event.detail.width);
+image.addEventListener('beforeSizesUpdate', function(e) {
+  // Modify the calculated width
+  e.detail.width = Math.ceil(e.detail.width / 100) * 100;
 
-  // Modify the width
-  event.detail.width = event.detail.width * 0.8;
-
-  // Or prevent setting sizes entirely
-  // event.preventDefault();
+  // Or prevent the update
+  // e.preventDefault();
 });
 ```
 
-**Event detail properties:**
-- `width` (number) - Calculated width in pixels (can be modified)
-- `dataAttr` (boolean) - Whether calculation was triggered by data attribute
+### afterSizesUpdate
 
-### afterCalculateSizes
-
-Fired after the `sizes` attribute has been set. Useful for tracking or logging size calculations.
+Fired after the `sizes` attribute has been set:
 
 ```javascript
-document.addEventListener('afterCalculateSizes', (event) => {
-  console.log('Size set:', event.detail.sizes);
-  console.log('Width:', event.detail.width);
-
-  // Can't modify anymore, but useful for:
-  // - Analytics tracking
-  // - Debugging
-  // - Triggering other updates
+image.addEventListener('afterSizesUpdate', function(e) {
+  console.log('Sizes updated to:', e.detail.width + 'px');
 });
 ```
 
-**Event detail properties:**
-- `width` (number) - Calculated width in pixels (read-only)
-- `sizes` (string) - The sizes value that was set (e.g., "450px")
+## Styling Processed Images
 
-## API
+Use the `processedClass` to style images after they've been processed:
 
-### Manual Control
+```css
+/* Show a subtle indicator when sizes is calculated */
+img.autosized {
+  outline: 2px solid green;
+}
 
-If you disable auto-initialization, you can control the library manually:
+/* Or use it for transitions */
+img.autosizes {
+  opacity: 0.5;
+  transition: opacity 0.3s;
+}
 
-```javascript
-window.autoSizesConfig = { init: false };
-
-import autoSizes from 'autosizes';
-
-// Initialize manually
-autoSizes.init();
-
-// Update all elements
-autoSizes.autoSizer.checkElems();
-
-// Update specific element
-const img = document.querySelector('.my-image');
-autoSizes.autoSizer.updateElem(img);
+img.autosized {
+  opacity: 1;
+}
 ```
-
-### API Methods
-
-| Method | Description |
-|--------|-------------|
-| `autoSizes.init()` | Initialize the library (called automatically by default) |
-| `autoSizes.autoSizer.checkElems()` | Recalculate sizes for all elements |
-| `autoSizes.autoSizer.updateElem(element)` | Update sizes for specific element |
-
-## How It Works
-
-1. The library finds all elements with the configured class (default: `.autosizes`)
-2. For each element, it calculates the display width using `offsetWidth`
-3. If the width is below `minSize`, it traverses up the DOM tree to find a larger parent
-4. Triggers `beforeCalculateSizes` event (allows modification)
-5. Sets the `sizes` attribute to the calculated width (e.g., `"450px"`)
-6. For `<picture>` elements, also updates all child `<source>` elements
-7. Listens to window `resize` events and recalculates (debounced)
 
 ## Browser Support
 
-Modern browsers with ES6 support:
-- Chrome 51+
-- Firefox 54+
-- Safari 10+
-- Edge 15+
+Works in all modern browsers that support:
 
-## Performance
+- `srcset` and `sizes` attributes
+- `classList` API
+- `requestAnimationFrame`
 
-- Uses `requestAnimationFrame` batching for smooth performance
-- Debounces resize events (configurable)
-- Uses `requestIdleCallback` when available for non-critical updates
-- Minimal DOM operations
+Tested and working in:
 
-## Differences from lazysizes
+- Chrome/Edge 90+
+- Firefox 88+
+- Safari 14+
+- Mobile browsers (iOS Safari, Chrome Mobile)
 
-This library is a **simplified, focused version** that only handles automatic `sizes` calculation. It removes:
+## Extracted from lazysizes
 
-- Lazy loading functionality
-- Image unveiling/loading logic
-- Intersection observer logic
-- Plugin system
-- Legacy browser support (IE11 and below)
+This library extracts and focuses solely on the automatic `sizes` calculation feature from the
+excellent [lazysizes](https://github.com/aFarkas/lazysizes) library. Use this if you:
+
+- Want automatic sizes calculation without lazy loading
+- Use native `loading="lazy"`
+- Use a different lazy loading solution
+- Want a smaller, focused library
+
+## Credits
+
+This library is extracted from the excellent [lazysizes](https://github.com/aFarkas/lazysizes) by Alexander Farkas.
+
+**If you need advanced lazy loading features**, we highly recommend using the full lazysizes library instead. It provides:
+
+- Automatic lazy loading of images, iframes, scripts
+- Low quality image placeholders (LQIP)
+- Progressive image loading
+- Responsive image polyfills
+- Extensive plugin ecosystem
+- Battle-tested performance optimizations
+
+This library exists for projects that:
+
+- Already have a lazy loading solution
+- Use native `loading="lazy"`
+- Want only the automatic `sizes` calculation feature
+- Need the smallest possible bundle size
 
 ## License
 
 MIT
-
-## Credits
-
-Based on the `autoSizer` module from [lazysizes](https://github.com/aFarkas/lazysizes) by Alexander Farkas.

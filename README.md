@@ -1,4 +1,4 @@
-# autosizes
+# auto-sizes
 
 Automatic `sizes` attribute calculation for responsive images.
 
@@ -27,7 +27,7 @@ Automatic `sizes` attribute calculation for responsive images.
 />
 
 <script type="module">
-  import 'autosizes';
+  import 'auto-sizes';
   // That's it! The library auto-initializes and calculates sizes.
 </script>
 ```
@@ -52,13 +52,13 @@ npm install auto-sizes
 
 ```javascript
 // ES modules (auto-executes)
-import 'autosizes';
+import 'auto-sizes';
 
 // CommonJS
-require('autosizes');
+require('auto-sizes');
 
 // With explicit import for manual control
-import autoSizes from 'autosizes';
+import autoSizes from 'auto-sizes';
 autoSizes.init();
 autoSizes.updateAll();
 ```
@@ -249,7 +249,7 @@ This is a **focused extraction** of only the `sizes` calculation feature from la
 
 ### Size Comparison
 
-| Metric | lazysizes | autosizes | Savings |
+| Metric | lazysizes | auto-sizes | Savings |
 |--------|-----------|-----------|---------|
 | Source code | 19.9 KB / 813 lines | 8.2 KB / 353 lines | **59%** |
 | Minified | 7.8 KB | ~3.3 KB | **58%** |
@@ -263,7 +263,7 @@ This is a **focused extraction** of only the `sizes` calculation feature from la
 - Need IE11 support
 - Want extensive plugin ecosystem
 
-**Use autosizes if:**
+**Use auto-sizes if:**
 - Only need `sizes` calculation
 - Already have lazy loading solution
 - Use native `loading="lazy"`
@@ -276,7 +276,7 @@ This is a **focused extraction** of only the `sizes` calculation feature from la
 <!-- lazysizes: uses data-sizes with lazy loading -->
 <img class="lazyload" data-sizes="auto" data-srcset="..." data-src="..." />
 
-<!-- autosizes: uses sizes="auto" without lazy loading -->
+<!-- auto-sizes: uses sizes="auto" without lazy loading -->
 <img class="autosizes" sizes="auto" srcset="..." src="..." />
 ```
 

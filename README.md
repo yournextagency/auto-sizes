@@ -17,7 +17,14 @@ Automatic `sizes` attribute calculation for responsive images.
 
 ## Quick Start
 
+**Recommended:** Load the script in `<head>` or before your images for optimal performance.
+
 ```html
+<script type="module">
+    import 'auto-sizes';
+    // That's it! The library auto-initializes and calculates sizes.
+</script>
+
 <img
   class="autosizes"
   sizes="auto"
@@ -25,11 +32,6 @@ Automatic `sizes` attribute calculation for responsive images.
   src="image-300.jpg"
   alt="Responsive image"
 />
-
-<script type="module">
-  import 'auto-sizes';
-  // That's it! The library auto-initializes and calculates sizes.
-</script>
 ```
 
 Result:
@@ -44,8 +46,23 @@ Result:
 
 ## Installation
 
+### npm
+
 ```bash
 npm install auto-sizes
+```
+
+### CDN
+
+```html
+<!-- unpkg (recommended) -->
+<script type="module" src="https://unpkg.com/auto-sizes"></script>
+
+<!-- jsDelivr -->
+<script type="module" src="https://cdn.jsdelivr.net/npm/auto-sizes"></script>
+
+<!-- Minified version -->
+<script src="https://unpkg.com/auto-sizes/autosizes.min.js"></script>
 ```
 
 ### Import Methods

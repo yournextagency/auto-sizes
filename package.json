@@ -1,5 +1,5 @@
 {
-  "name": "autosizes",
+  "name": "auto-sizes",
   "version": "1.0.0",
   "description": "Automatic sizes attribute calculator for responsive images. Extracted from lazysizes by Alexander Farkas.",
   "main": "index.js",

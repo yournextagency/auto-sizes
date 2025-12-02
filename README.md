@@ -45,7 +45,7 @@ Result:
 ## Installation
 
 ```bash
-npm install autosizes
+npm install auto-sizes
 ```
 
 ### Import Methods

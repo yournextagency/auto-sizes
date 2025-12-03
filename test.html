@@ -182,17 +182,15 @@
 
   <!-- Test 3: Picture element -->
   <div class="test-section">
-    <h2>Test 3: Picture Element (all sources with sizes="auto")</h2>
+    <h2>Test 3: Picture Element (correct HTML spec usage)</h2>
     <div class="image-container" id="container3">
       <picture>
         <source
-          sizes="auto"
           media="(min-width: 768px)"
           srcset="https://via.placeholder.com/800x600?text=Desktop+800w 800w,
                   https://via.placeholder.com/1200x900?text=Desktop+1200w 1200w"
         />
         <source
-          sizes="auto"
           srcset="https://via.placeholder.com/400x300?text=Mobile+400w 400w,
                   https://via.placeholder.com/600x450?text=Mobile+600w 600w"
         />
@@ -207,36 +205,27 @@
       </picture>
       <div class="info">
         <strong>img sizes:</strong> <span id="sizes3img">Not set</span><br>
-        <strong>source[0] sizes:</strong> <span id="sizes3source1">Not set</span><br>
-        <strong>source[1] sizes:</strong> <span id="sizes3source2">Not set</span><br>
+        <strong>source elements:</strong> No sizes attribute (per HTML spec)<br>
         <strong>Current width:</strong> <span id="width3">-</span>px
       </div>
     </div>
   </div>
 
-  <!-- Test 4: Mixed picture (some auto, some manual) -->
+  <!-- Test 4: Quarter width container -->
   <div class="test-section">
-    <h2>Test 4: Mixed Picture (only img has sizes="auto")</h2>
-    <div class="image-container" id="container4">
-      <picture>
-        <source
-          sizes="100vw"
-          media="(min-width: 768px)"
-          srcset="https://via.placeholder.com/800x600?text=Desktop 800w"
-        />
-        <img
-          class="autosizes"
-          sizes="auto"
-          srcset="https://via.placeholder.com/400x300?text=400w 400w,
-                  https://via.placeholder.com/600x450?text=600w 600w"
-          src="https://via.placeholder.com/400x300?text=fallback"
-          alt="Mixed picture test"
-        />
-      </picture>
+    <h2>Test 4: Quarter Width Container</h2>
+    <div class="image-container quarter-width" id="container4">
+      <img
+        class="autosizes"
+        sizes="auto"
+        srcset="https://via.placeholder.com/300x200?text=300w 300w,
+                https://via.placeholder.com/600x400?text=600w 600w"
+        src="https://via.placeholder.com/300x200?text=fallback"
+        alt="Quarter width test"
+      />
       <div class="info">
-        <strong>img sizes:</strong> <span id="sizes4img">Not set</span><br>
-        <strong>source sizes (manual):</strong> <span id="sizes4source">Not set</span><br>
-        <strong>Note:</strong> Source should keep "100vw", only img should update
+        <strong>sizes:</strong> <span id="sizes4img">Not set</span><br>
+        <strong>Current width:</strong> <span id="width4">-</span>px
       </div>
     </div>
   </div>
@@ -245,7 +234,7 @@
   <div class="test-section">
     <h2>Test 5: Using data-sizes attribute</h2>
     <p>Set config.sizesAttr = 'data-sizes' to test prefix support</p>
-    <div class="image-container quarter-width" id="container5">
+    <div class="image-container half-width" id="container5">
       <img
         class="autosizes"
         data-sizes="auto"
@@ -315,17 +304,13 @@
 
       // Test 3
       const img3 = document.querySelector('#container3 img');
-      const sources3 = document.querySelectorAll('#container3 source');
       document.getElementById('sizes3img').textContent = img3.getAttribute('sizes') || 'auto';
-      document.getElementById('sizes3source1').textContent = sources3[0]?.getAttribute('sizes') || 'auto';
-      document.getElementById('sizes3source2').textContent = sources3[1]?.getAttribute('sizes') || 'auto';
       document.getElementById('width3').textContent = img3.offsetWidth;
 
       // Test 4
       const img4 = document.querySelector('#container4 img');
-      const source4 = document.querySelector('#container4 source');
       document.getElementById('sizes4img').textContent = img4.getAttribute('sizes') || 'auto';
-      document.getElementById('sizes4source').textContent = source4?.getAttribute('sizes') || 'Not set';
+      document.getElementById('width4').textContent = img4.offsetWidth;
 
       // Test 5
       const img5 = document.getElementById('dataSizesImg');

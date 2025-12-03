@@ -169,11 +169,6 @@ function triggerEvent(elem, name, detail = {}) {
 }
 
 /**
- * Regular expression to test for picture elements
- */
-const regPicture = /^picture$/i;
-
-/**
  * Check if attribute has a prefix (e.g., 'data-sizes')
  * @param {string} attr - Attribute name
  * @returns {boolean}
@@ -228,9 +223,9 @@ const autoSizer = (() => {
   };
 
   /**
-   * Set sizes attribute on element and source children
+   * Set sizes attribute on element
    * @param {Element} elem - The image element
-   * @param {Element} parent - Parent element
+   * @param {Element} parent - Parent element (unused, kept for compatibility)
    * @param {CustomEvent} event - The event object
    * @param {number} width - Calculated width
    */
@@ -242,16 +237,6 @@ const autoSizer = (() => {
     // Set sizes attribute on img element (only if it has sizes="auto")
     if (hasSizesAuto(elem)) {
       setSizesAttr(elem, widthPx);
-    }
-
-    // If parent is picture element, update source elements with sizes="auto"
-    if (regPicture.test(parent.nodeName || '')) {
-      const sources = parent.getElementsByTagName('source');
-      for (let i = 0; i < sources.length; i++) {
-        if (hasSizesAuto(sources[i])) {
-          setSizesAttr(sources[i], widthPx);
-        }
-      }
     }
 
     // Add processed class to mark element as complete

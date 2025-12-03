@@ -9,7 +9,7 @@ Automatic `sizes` attribute calculation for responsive images.
 - 🎯 Automatic calculation of `sizes` attribute from element width
 - 📦 Tiny size (~3.3KB minified, ~1.5KB gzipped)
 - 🚀 High performance with RAF batching and debounced resize
-- 🖼️ Smart `<picture>` support - only `<img>` needs the class
+- 🖼️ Smart `<picture>` support - only `<img>` needs `sizes` attribute
 - 🔄 Auto-updates on window resize
 - 🎨 Customizable via events and CSS classes
 - 📱 Works with any responsive image setup
@@ -102,24 +102,17 @@ The library will:
 
 ### Picture Element
 
-Add `autosizes` class only to the `<img>`. All `<source>` and `<img>` elements with `sizes="auto"` will be updated:
+Add `autosizes` class and `sizes="auto"` only to the `<img>` element. The `<source>` elements don't need the `sizes` attribute:
 
 ```html
 <picture>
-  <source sizes="auto" srcset="desktop-800.jpg 800w, desktop-1200.jpg 1200w" media="(min-width: 768px)" />
-  <source sizes="auto" srcset="mobile-400.jpg 400w, mobile-600.jpg 600w" />
+  <source srcset="desktop-800.jpg 800w, desktop-1200.jpg 1200w" media="(min-width: 768px)" />
+  <source srcset="mobile-400.jpg 400w, mobile-600.jpg 600w" />
   <img class="autosizes" sizes="auto" srcset="fallback-600.jpg 600w" src="fallback-600.jpg" alt="..." />
 </picture>
 ```
 
-**Mixed auto/manual:** Sources without `sizes="auto"` keep their manual values:
-
-```html
-<picture>
-  <source sizes="100vw" srcset="..." />  <!-- Manual - not changed -->
-  <img class="autosizes" sizes="auto" srcset="..." />  <!-- Auto - calculated -->
-</picture>
-```
+**How it works:** The browser first selects the appropriate `<source>` based on `media` queries, then uses the `sizes` attribute from the `<img>` element to determine which image from the selected `srcset` to load.
 
 ### Styling with `autosized` Class
 
@@ -260,7 +253,7 @@ This is a **focused extraction** of only the `sizes` calculation feature from la
 
 - **`sizes="auto"` requirement** - Explicit opt-in per element
 - **Prefix support** - `data-sizes="auto"` sets both attributes
-- **Selective source processing** - Only updates sources with `sizes="auto"`
+- **Correct `<picture>` handling** - Only `<img>` gets `sizes` attribute (per HTML spec)
 - **Modern ES6** - Cleaner, more maintainable code
 - **Simplified API** - `updateAll()` and `updateElem()`
 

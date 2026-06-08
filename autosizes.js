@@ -6,7 +6,7 @@
  * Modified work Copyright (c) 2025 Oleg Tishkin
  * Code assistance Copyright (c) 2025 Anthropic, PBC (Claude Code)
  *
- * @version 1.0.4
+ * @version 1.0.5
  * @license MIT
  * @author Oleg Tishkin
  * @contributors Claude (Anthropic)
@@ -213,7 +213,38 @@ const autoSizer = (() => {
   };
 
   /**
-   * Set sizes attribute on element
+   * Update sizes on <source> siblings inside a <picture> parent.
+   *
+   * Only sources whose sizes attribute is exactly "auto" are updated —
+   * sources with explicit hint values (e.g. "(min-width: 1024px) 380px, 320px")
+   * are intentionally left untouched so callers can opt out per-source.
+   *
+   * The browser picks a <source> based on its media condition, then uses that
+   * source's own sizes to select a srcset variant. The <img> sizes is only
+   * used as a fallback when no <source> matches, so updating only the <img>
+   * (as the library did before) had no effect on <picture> image selection.
+   *
+   * @param {Element} img - The <img> element inside <picture>
+   * @param {string} sizesValue - The calculated sizes value (e.g., "450px")
+   */
+  const updatePictureSources = (img, sizesValue) => {
+    const picture = img.parentNode;
+
+    if (!picture || picture.nodeName.toUpperCase() !== 'PICTURE') return;
+
+    const sources = picture.querySelectorAll('source');
+
+    for (let i = 0; i < sources.length; i++) {
+      const source = sources[i];
+
+      if (source.getAttribute(config.sizesAttr) === 'auto') {
+        source.setAttribute(config.sizesAttr, sizesValue);
+      }
+    }
+  };
+
+  /**
+   * Set sizes attribute on element and on any <source> siblings in a <picture>
    * @param {Element} elem - The image element
    * @param {Element} parent - Parent element (unused, kept for compatibility)
    * @param {CustomEvent} event - The event object
@@ -227,6 +258,11 @@ const autoSizer = (() => {
     // Set sizes attribute on img element
     // Elements with targetElementClass are always updated on resize
     setSizesAttr(elem, widthPx);
+
+    // If the img is inside a <picture>, propagate the calculated width to any
+    // <source sizes="auto"> siblings — the browser uses source sizes (not img
+    // sizes) when a source's media condition matches.
+    updatePictureSources(elem, widthPx);
 
     // Add processed class to mark element as complete
     if (config.processedElementClass) {

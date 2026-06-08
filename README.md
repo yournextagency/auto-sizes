@@ -7,9 +7,9 @@ Automatic `sizes` attribute calculation for responsive images.
 ## Features
 
 - 🎯 Automatic calculation of `sizes` attribute from element width
-- 📦 Tiny size (~2.2KB minified, ~1KB gzipped)
+- 📦 Tiny size (~2.3KB minified, ~1.1KB gzipped)
 - 🚀 High performance with RAF batching and debounced resize
-- 🖼️ Smart `<picture>` support - only `<img>` needs `sizes` attribute
+- 🖼️ Full `<picture>` support — updates `<source sizes="auto">` siblings too
 - 🔄 Auto-updates on window resize
 - 🎨 Customizable via events and CSS classes
 - 📱 Works with any responsive image setup
@@ -102,17 +102,39 @@ The library will:
 
 ### Picture Element
 
-Add `autosizes` class and `sizes="auto"` only to the `<img>` element. The `<source>` elements don't need the `sizes` attribute:
+Add `autosizes` class to the `<img>` and `sizes="auto"` to every `<source>` that needs automatic sizing. The library sets the calculated width on the `<img>` and on all `<source sizes="auto">` siblings:
 
 ```html
 <picture>
-  <source srcset="desktop-800.jpg 800w, desktop-1200.jpg 1200w" media="(min-width: 768px)" />
-  <source srcset="mobile-400.jpg 400w, mobile-600.jpg 600w" />
+  <source sizes="auto" srcset="desktop-800.jpg 800w, desktop-1200.jpg 1200w" media="(min-width: 768px)" />
+  <source sizes="auto" srcset="mobile-400.jpg 400w, mobile-600.jpg 600w" />
   <img class="autosizes" sizes="auto" srcset="fallback-600.jpg 600w" src="fallback-600.jpg" alt="..." />
 </picture>
 ```
 
-**How it works:** The browser first selects the appropriate `<source>` based on `media` queries, then uses the `sizes` attribute from the `<img>` element to determine which image from the selected `srcset` to load.
+After calculation:
+
+```html
+<picture>
+  <source sizes="450px" srcset="desktop-800.jpg 800w, desktop-1200.jpg 1200w" media="(min-width: 768px)" />
+  <source sizes="450px" srcset="mobile-400.jpg 400w, mobile-600.jpg 600w" />
+  <img class="autosizes autosized" sizes="450px" srcset="fallback-600.jpg 600w" src="fallback-600.jpg" alt="..." />
+</picture>
+```
+
+**How it works:** When the browser selects a `<source>` based on its `media` query, it uses that source's own `sizes` attribute to pick a srcset variant — not the `<img>`'s `sizes`. Without `sizes="auto"` on `<source>`, browsers default to `100vw` and download the largest available image regardless of the actual rendered width.
+
+Sources with explicit hint values are left untouched — useful when you know the layout width at template time:
+
+```html
+<picture>
+  <!-- explicit: library does not override this -->
+  <source sizes="(min-width: 1024px) 380px, 100vw" srcset="card-380.jpg 380w, card-760.jpg 760w" media="(min-width: 1024px)" />
+  <!-- auto: library measures and sets the calculated width -->
+  <source sizes="auto" srcset="mobile-320.jpg 320w, mobile-640.jpg 640w" />
+  <img class="autosizes" sizes="auto" srcset="fallback.jpg 320w" src="fallback.jpg" alt="..." />
+</picture>
+```
 
 ### Styling with `autosized` Class
 
@@ -253,7 +275,7 @@ This is a **focused extraction** of only the `sizes` calculation feature from la
 
 - **`sizes="auto"` requirement** - Explicit opt-in per element
 - **Prefix support** - `data-sizes="auto"` sets both attributes
-- **Correct `<picture>` handling** - Only `<img>` gets `sizes` attribute (per HTML spec)
+- **Full `<picture>` handling** - Calculates and sets `sizes` on `<source sizes="auto">` siblings (browsers use source `sizes`, not `<img>` sizes, when a media condition matches)
 - **Modern ES6** - Cleaner, more maintainable code
 - **Simplified API** - `updateAll()` and `updateElem()`
 
@@ -261,9 +283,9 @@ This is a **focused extraction** of only the `sizes` calculation feature from la
 
 | Metric | lazysizes | auto-sizes | Savings |
 |--------|-----------|-----------|---------|
-| Source code | 19.9 KB / 813 lines | 8.0 KB / 328 lines | **60%** |
-| Minified | 7.8 KB | ~2.2 KB | **72%** |
-| Gzipped | ~3.5 KB | ~1.0 KB | **71%** |
+| Source code | 19.9 KB / 813 lines | 8.6 KB / 371 lines | **57%** |
+| Minified | 7.8 KB | ~2.3 KB | **71%** |
+| Gzipped | ~3.5 KB | ~1.1 KB | **69%** |
 
 ### When to Use Each
 

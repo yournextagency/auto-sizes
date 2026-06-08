@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.5] - 2026-06-08
+
+### ✨ Added
+- **`<picture>` source support**: After calculating the width for an `<img>`, the library now also updates `sizes` on any `<source sizes="auto">` siblings inside the parent `<picture>`. Previously, only the `<img>` was updated, which had no effect on source selection — browsers use the matched `<source>`'s own `sizes` to pick a srcset variant, not the `<img>`'s. Sources with explicit sizes values (e.g. `"(min-width: 1024px) 380px, 100vw"`) are intentionally left untouched.
+
+### 📦 Size
+- Source: 8.6 KB
+- Minified: ~2.3 KB
+- Gzipped: ~1.1 KB
+
 ## [1.0.4] - 2025-12-03
 
 ### 🐛 Fixed
@@ -81,6 +91,7 @@ Extracted from [lazysizes](https://github.com/aFarkas/lazysizes) by Alexander Fa
 
 | Version | Date | Key Changes | Bundle Size |
 |---------|------|-------------|-------------|
+| 1.0.5 | 2026-06-08 | `<picture>` source support | ~2.3 KB / ~1.1 KB gzip |
 | 1.0.4 | 2025-12-03 | Fix resize bug | 2.1 KB / 995 B gzip |
 | 1.0.3 | 2025-12-03 | Fix picture elements | 2.2 KB / 1.0 KB gzip |
 | 1.0.2 | 2025-12-03 | Initial release | 3.3 KB / 1.5 KB gzip |
